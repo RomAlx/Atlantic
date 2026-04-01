@@ -1,0 +1,30 @@
+version: '3'
+
+tasks:
+  start:
+    desc: "Альтернативный запуск с параллельным выполнением"
+    cmds:
+      - echo "🔥 Запускаем все серверы параллельно..."
+      - |
+        php artisan serve --host=atlantic --port=8000 &
+        npm run dev -- --host atlantic --port 5173 &
+        wait
+    silent: false
+
+  dev:
+    desc: "Альтернативный запуск с параллельным выполнением"
+    cmds:
+      - echo "🔥 Запускаем все серверы параллельно..."
+      - |
+        php artisan serve &
+        npm run dev &
+        wait
+    silent: false
+
+  status:
+    desc: "Проверка статуса запущенных процессов"
+    cmds:
+      - echo "📊 Статус серверов:"
+      - pgrep -f "php artisan serve" > /dev/null && echo "✅ PHP сервер запущен (port 8000)" || echo "❌ PHP сервер не запущен"
+      - pgrep -f "vite" > /dev/null && echo "✅ Vite сервер запущен (port 5173)" || echo "❌ Vite сервер не запущен"
+    silent: false
