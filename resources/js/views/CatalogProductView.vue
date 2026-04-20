@@ -26,6 +26,13 @@ const load = async () => {
 
 onMounted(load);
 watch(() => [route.params.categorySlug, route.params.productSlug], load);
+
+function scrollToFeedbackForm() {
+    const el = document.getElementById('feedback-form');
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
 </script>
 
 <template>
@@ -59,6 +66,9 @@ watch(() => [route.params.categorySlug, route.params.productSlug], load);
                         <p><strong>SKU:</strong> {{ data.item?.sku || '—' }}</p>
                         <p>{{ data.item?.short_description }}</p>
                         <p>{{ data.item?.description }}</p>
+                        <button type="button" class="at_but_style mt-3 d-inline-block border-0" @click="scrollToFeedbackForm">
+                            Задать вопрос
+                        </button>
                     </div>
                 </div>
             </div>
@@ -79,38 +89,54 @@ watch(() => [route.params.categorySlug, route.params.productSlug], load);
 
             <div v-if="(data.item?.popular_items ?? []).length" class="mt-5">
                 <h2 class="at_product_specs__title">Популярные товары</h2>
-                <div class="row g-3">
-                    <div v-for="item in data.item.popular_items" :key="`popular-${item.id}`" class="col-6 col-md-4 col-xl-3">
-                        <div class="at_card_product_list">
-                            <div class="at_card_product_list__media">
-                                <ProductCardSlider variant="card" :images="item.images" :name="item.name" fallback="/images/source/normalized/image-3.jpg" />
-                            </div>
-                            <div class="at_card_product_list__body">
-                                <div class="at_card_product_list__title">{{ item.name }}</div>
-                                <div class="at_card_product_list__action">
-                                    <RouterLink class="at_but_style" :to="`/catalog/${item.category.slug}/${item.slug}`">Подробнее</RouterLink>
+                <div class="row g-3 justify-content-center at_card_grid_row">
+                    <div v-for="item in data.item.popular_items" :key="`popular-${item.id}`" class="col-6 col-lg-4">
+                        <article class="at_support_card h-100">
+                            <RouterLink
+                                class="text-reset text-decoration-none d-flex flex-column h-100"
+                                :to="`/catalog/${item.category.slug}/${item.slug}`"
+                            >
+                                <div class="at_support_card__media">
+                                    <ProductCardSlider variant="card" :images="item.images" :name="item.name" fallback="/images/source/normalized/image-3.jpg" />
                                 </div>
-                            </div>
-                        </div>
+                                <div class="at_support_card__body">
+                                    <h2 class="at_support_card__title">{{ item.name }}</h2>
+                                    <p v-if="item.short_description" class="at_support_card__description d-none d-md-block">
+                                        {{ item.short_description }}
+                                    </p>
+                                    <div class="at_but av_otst_tb">
+                                        <span class="at_but_style">Подробнее</span>
+                                    </div>
+                                </div>
+                            </RouterLink>
+                        </article>
                     </div>
                 </div>
             </div>
 
             <div v-if="(data.item?.related_items ?? []).length" class="mt-5">
                 <h2 class="at_product_specs__title">Связанные товары</h2>
-                <div class="row g-3">
-                    <div v-for="item in data.item.related_items" :key="`related-${item.id}`" class="col-6 col-md-4 col-xl-3">
-                        <div class="at_card_product_list">
-                            <div class="at_card_product_list__media">
-                                <ProductCardSlider variant="card" :images="item.images" :name="item.name" fallback="/images/source/normalized/image-3.jpg" />
-                            </div>
-                            <div class="at_card_product_list__body">
-                                <div class="at_card_product_list__title">{{ item.name }}</div>
-                                <div class="at_card_product_list__action">
-                                    <RouterLink class="at_but_style" :to="`/catalog/${item.category.slug}/${item.slug}`">Подробнее</RouterLink>
+                <div class="row g-3 justify-content-center at_card_grid_row">
+                    <div v-for="item in data.item.related_items" :key="`related-${item.id}`" class="col-6 col-lg-4">
+                        <article class="at_support_card h-100">
+                            <RouterLink
+                                class="text-reset text-decoration-none d-flex flex-column h-100"
+                                :to="`/catalog/${item.category.slug}/${item.slug}`"
+                            >
+                                <div class="at_support_card__media">
+                                    <ProductCardSlider variant="card" :images="item.images" :name="item.name" fallback="/images/source/normalized/image-3.jpg" />
                                 </div>
-                            </div>
-                        </div>
+                                <div class="at_support_card__body">
+                                    <h2 class="at_support_card__title">{{ item.name }}</h2>
+                                    <p v-if="item.short_description" class="at_support_card__description d-none d-md-block">
+                                        {{ item.short_description }}
+                                    </p>
+                                    <div class="at_but av_otst_tb">
+                                        <span class="at_but_style">Подробнее</span>
+                                    </div>
+                                </div>
+                            </RouterLink>
+                        </article>
                     </div>
                 </div>
             </div>

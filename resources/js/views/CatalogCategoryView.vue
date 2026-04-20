@@ -22,8 +22,6 @@ const subMeta = ref({ current_page: 1, last_page: 1, per_page: PER_PAGE, total: 
 const productsItems = ref([]);
 const prodMeta = ref({ current_page: 1, last_page: 1, per_page: PER_PAGE, total: 0 });
 
-const activeTab = ref('subcategories');
-
 const subSentinel = ref(null);
 const prodSentinel = ref(null);
 
@@ -31,7 +29,6 @@ let observer = null;
 
 const showSubBlock = computed(() => subMeta.value.total > 0);
 const showProdBlock = computed(() => prodMeta.value.total > 0);
-const showTabs = computed(() => showSubBlock.value && showProdBlock.value);
 
 const canLoadMoreSub = computed(
     () => subMeta.value.current_page < subMeta.value.last_page && !loadingMore.value && !loading.value,
@@ -40,14 +37,6 @@ const canLoadMoreProd = computed(
     () => prodMeta.value.current_page < prodMeta.value.last_page && !loadingMore.value && !loading.value,
 );
 
-function pickDefaultTab() {
-    if (subMeta.value.total > 0) {
-        activeTab.value = 'subcategories';
-    } else {
-        activeTab.value = 'products';
-    }
-}
-
 function disconnectObserver() {
     observer?.disconnect();
     observer = null;
@@ -55,31 +44,30 @@ function disconnectObserver() {
 
 function observeSentinel() {
     disconnectObserver();
-    const el =
-        showTabs.value === true
-            ? activeTab.value === 'subcategories'
-                ? subSentinel.value
-                : prodSentinel.value
-            : showSubBlock.value && !showProdBlock.value
-              ? subSentinel.value
-              : showProdBlock.value && !showSubBlock.value
-                ? prodSentinel.value
-                : null;
 
-    if (!el) {
-        return;
-    }
-
-    observer = new IntersectionObserver(
+    const obs = new IntersectionObserver(
         (entries) => {
-            if (!entries[0]?.isIntersecting) {
-                return;
+            for (const entry of entries) {
+                if (!entry.isIntersecting) {
+                    continue;
+                }
+                if (entry.target === subSentinel.value && canLoadMoreSub.value) {
+                    void loadMore('sub');
+                } else if (entry.target === prodSentinel.value && canLoadMoreProd.value) {
+                    void loadMore('prod');
+                }
             }
-            void loadMore();
         },
         { root: null, rootMargin: '160px', threshold: 0 },
     );
-    observer.observe(el);
+    observer = obs;
+
+    if (subSentinel.value && canLoadMoreSub.value) {
+        obs.observe(subSentinel.value);
+    }
+    if (prodSentinel.value && canLoadMoreProd.value) {
+        obs.observe(prodSentinel.value);
+    }
 }
 
 async function load() {
@@ -114,8 +102,6 @@ async function load() {
             per_page: PER_PAGE,
             total: 0,
         };
-
-        pickDefaultTab();
     } catch (e) {
         error.value = 'Ошибка загрузки данных';
     } finally {
@@ -125,40 +111,35 @@ async function load() {
     }
 }
 
-async function loadMore() {
+/**
+ * @param {'sub' | 'prod'} kind
+ */
+async function loadMore(kind) {
     if (loadingMore.value || loading.value) {
         return;
     }
-
-    const slug = route.params.categorySlug;
-    const useSub =
-        (showTabs.value && activeTab.value === 'subcategories') ||
-        (!showTabs.value && showSubBlock.value && !showProdBlock.value);
-    const useProd =
-        (showTabs.value && activeTab.value === 'products') ||
-        (!showTabs.value && showProdBlock.value && !showSubBlock.value);
-
-    if (useSub && !canLoadMoreSub.value) {
+    if (kind === 'sub' && !canLoadMoreSub.value) {
         return;
     }
-    if (useProd && !canLoadMoreProd.value) {
+    if (kind === 'prod' && !canLoadMoreProd.value) {
         return;
     }
 
     loadingMore.value = true;
+    const slug = route.params.categorySlug;
     const qs = new URLSearchParams({
-        page: String(useSub ? subMeta.value.current_page + 1 : prodMeta.value.current_page + 1),
+        page: String(kind === 'sub' ? subMeta.value.current_page + 1 : prodMeta.value.current_page + 1),
         per_page: String(PER_PAGE),
     });
 
     try {
-        if (useSub) {
+        if (kind === 'sub') {
             const data = await fetchJson(`/api/catalog/${slug}/subcategories?${qs.toString()}`);
             subcategoriesItems.value = subcategoriesItems.value.concat(data.items ?? []);
             if (data.meta) {
                 subMeta.value = data.meta;
             }
-        } else if (useProd) {
+        } else {
             const data = await fetchJson(`/api/catalog/${slug}/products?${qs.toString()}`);
             productsItems.value = productsItems.value.concat(data.items ?? []);
             if (data.meta) {
@@ -176,11 +157,6 @@ async function loadMore() {
 
 onMounted(load);
 watch(() => route.params.categorySlug, load);
-
-watch(activeTab, async () => {
-    await nextTick();
-    observeSentinel();
-});
 
 onUnmounted(() => {
     disconnectObserver();
@@ -203,108 +179,80 @@ onUnmounted(() => {
         <p v-if="loading" class="text-center">Загрузка...</p>
         <p v-else-if="error" class="text-center">{{ error }}</p>
         <template v-else>
-            <div v-if="showTabs" class="at_cat_tabs mb-4" role="tablist" aria-label="Разделы категории">
-                <button
-                    type="button"
-                    role="tab"
-                    class="at_cat_tabs__btn"
-                    :class="{ 'at_cat_tabs__btn--active': activeTab === 'subcategories' }"
-                    :aria-selected="activeTab === 'subcategories'"
-                    @click="activeTab = 'subcategories'"
-                >
-                    Подкатегории
-                    <span class="at_cat_tabs__count">{{ subMeta.total }}</span>
-                </button>
-                <button
-                    type="button"
-                    role="tab"
-                    class="at_cat_tabs__btn"
-                    :class="{ 'at_cat_tabs__btn--active': activeTab === 'products' }"
-                    :aria-selected="activeTab === 'products'"
-                    @click="activeTab = 'products'"
-                >
-                    Товары
-                    <span class="at_cat_tabs__count">{{ prodMeta.total }}</span>
-                </button>
-            </div>
-
             <p v-if="!showSubBlock && !showProdBlock" class="text-secondary small mt-3 mb-0">
                 В этой категории пока нет подкатегорий и товаров.
             </p>
 
-            <div
-                v-show="showTabs ? activeTab === 'subcategories' : showSubBlock"
-                class="at_cat_panel"
-                role="tabpanel"
-            >
-                <h2 v-if="!showTabs && showSubBlock" class="h5 fw-bold mt-2 mb-3">Подкатегории</h2>
-                <div v-if="subcategoriesItems.length" class="row justify-content-center">
+            <div v-if="showSubBlock" class="at_cat_section">
+                <h2 class="at_cat_subheading"><span class="underline_bottom">Подкатегории</span></h2>
+                <div v-if="subcategoriesItems.length" class="row g-3 justify-content-center at_card_grid_row">
                     <div
                         v-for="sub in subcategoriesItems"
                         :key="'sub-' + sub.id"
-                        class="col-6 col-md-6 col-xl-3 mb-3"
+                        class="col-6 col-lg-4"
                     >
-                        <RouterLink class="av_not_link" :to="`/catalog/${sub.slug}`">
-                            <div class="at_card_cat">
+                        <article class="at_support_card h-100">
+                            <RouterLink :to="`/catalog/${sub.slug}`" class="text-reset text-decoration-none d-flex flex-column h-100">
                                 <img
-                                    class="img-fluid at_preview_fill"
+                                    class="at_support_card__image"
                                     :src="resolveMediaUrl(sub.image, '/images/source/normalized/image.png')"
                                     :alt="sub.name"
                                 >
-                                <div class="at_naim_tov">{{ sub.name }}</div>
-                                <div class="at_but av_otst_tb"><span class="at_but_style">Подробнее</span></div>
-                            </div>
-                        </RouterLink>
+                                <div class="at_support_card__body">
+                                    <h2 class="at_support_card__title">{{ sub.name }}</h2>
+                                    <div class="at_but av_otst_tb">
+                                        <span class="at_but_style">Подробнее</span>
+                                    </div>
+                                </div>
+                            </RouterLink>
+                        </article>
                     </div>
                 </div>
                 <div ref="subSentinel" class="at_infinite_sentinel" aria-hidden="true" />
-                <p v-if="loadingMore && (showTabs ? activeTab === 'subcategories' : showSubBlock)" class="text-center text-secondary small py-3 mb-0">
-                    Загрузка…
-                </p>
             </div>
 
-            <div
-                v-show="showTabs ? activeTab === 'products' : showProdBlock"
-                class="at_cat_panel"
-                role="tabpanel"
-            >
-                <h2 v-if="!showTabs && showProdBlock" class="h5 fw-bold mt-4 mb-3">Товары категории</h2>
-                <div v-if="productsItems.length" class="row justify-content-center">
+            <div v-if="showProdBlock" class="at_cat_section" :class="{ 'mt-5': showSubBlock }">
+                <h2 class="at_cat_subheading"><span class="underline_bottom">Товары</span></h2>
+                <div v-if="productsItems.length" class="row g-3 justify-content-center at_card_grid_row">
                     <div
                         v-for="item in productsItems"
                         :key="'p-' + item.id"
-                        class="col-6 col-md-6 col-xl-4 mb-3"
+                        class="col-6 col-lg-4"
                     >
-                        <div class="at_card_product_list">
-                            <div class="at_card_product_list__media">
-                                <ProductCardSlider
-                                    variant="card"
-                                    :images="item.images"
-                                    :name="item.name"
-                                    fallback="/images/source/normalized/image-3.jpg"
-                                />
-                            </div>
-                            <div class="at_card_product_list__body">
-                                <div class="at_card_product_list__title">{{ item.name }}</div>
-                                <div v-if="item.category?.name" class="at_card_product_list__cat small text-secondary">
-                                    {{ item.category.name }}
+                        <article class="at_support_card h-100">
+                            <RouterLink
+                                class="text-reset text-decoration-none d-flex flex-column h-100"
+                                :to="`/catalog/${item.category?.slug ?? route.params.categorySlug}/${item.slug}`"
+                            >
+                                <div class="at_support_card__media">
+                                    <ProductCardSlider
+                                        variant="card"
+                                        :images="item.images"
+                                        :name="item.name"
+                                        fallback="/images/source/normalized/image-3.jpg"
+                                    />
                                 </div>
-                                <div class="at_card_product_list__action">
-                                    <RouterLink
-                                        class="at_but_style"
-                                        :to="`/catalog/${item.category?.slug ?? route.params.categorySlug}/${item.slug}`"
-                                    >Подробнее</RouterLink>
+                                <div class="at_support_card__body">
+                                    <h2 class="at_support_card__title">{{ item.name }}</h2>
+                                    <p v-if="item.category?.name" class="at_support_card__description small d-none d-md-block">
+                                        {{ item.category.name }}
+                                    </p>
+                                    <p v-if="item.short_description" class="at_support_card__description d-none d-md-block">
+                                        {{ item.short_description }}
+                                    </p>
+                                    <div class="at_but av_otst_tb">
+                                        <span class="at_but_style">Подробнее</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                            </RouterLink>
+                        </article>
                     </div>
                 </div>
-                <p v-else-if="showProdBlock" class="text-secondary small mb-4">В этой категории пока нет товаров.</p>
+                <p v-else class="text-secondary small mb-4">В этой категории пока нет товаров.</p>
                 <div ref="prodSentinel" class="at_infinite_sentinel" aria-hidden="true" />
-                <p v-if="loadingMore && (showTabs ? activeTab === 'products' : showProdBlock)" class="text-center text-secondary small py-3 mb-0">
-                    Загрузка…
-                </p>
             </div>
+
+            <p v-if="loadingMore" class="text-center text-secondary small py-3 mb-0">Загрузка…</p>
         </template>
     </section>
 </template>

@@ -52,8 +52,8 @@ watch(() => route.query.q, load);
         <p v-else-if="error" class="text-center">{{ error }}</p>
         <p v-else-if="!data.items.length" class="text-center text-muted">Статьи не найдены.</p>
 
-        <div v-else class="row g-3">
-            <div v-for="item in data.items" :key="item.id" class="col-xl-4 col-md-6">
+        <div v-else class="row g-3 justify-content-center at_card_grid_row">
+            <div v-for="item in data.items" :key="item.id" class="col-6 col-lg-4">
                 <article class="at_support_card h-100">
                     <RouterLink :to="`/support/${item.slug}`" class="text-reset text-decoration-none d-flex flex-column h-100">
                         <img

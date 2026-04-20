@@ -35,18 +35,49 @@ class SettingForm
                     ->maxLength(255)
                     ->label('Email для заявок')
                     ->helperText('Используется только для отправки заявок с сайта, на фронте не отображается.'),
-                TextInput::make('address')
-                    ->maxLength(255)
-                    ->label('Адрес'),
-                TextInput::make('warehouse_address')
-                    ->maxLength(255)
-                    ->label('Адрес склада'),
+                Repeater::make('contact_addresses')
+                    ->label('Адреса на карте')
+                    ->helperText('Каждая строка — площадка (офис, склад…): подпись, полный адрес для карты, при необходимости телефоны только этой площадки.')
+                    ->schema([
+                        TextInput::make('title')
+                            ->label('Что это')
+                            ->placeholder('Склад, офис, производство…')
+                            ->maxLength(120)
+                            ->required(),
+                        TextInput::make('address')
+                            ->label('Адрес')
+                            ->maxLength(255)
+                            ->required(),
+                        Repeater::make('phones')
+                            ->label('Телефоны на этой площадке')
+                            ->schema([
+                                TextInput::make('label')
+                                    ->label('Подпись')
+                                    ->placeholder('Склад, приёмная…')
+                                    ->maxLength(120)
+                                    ->required(),
+                                TextInput::make('number')
+                                    ->label('Номер')
+                                    ->tel()
+                                    ->maxLength(64)
+                                    ->required(),
+                            ])
+                            ->columns(2)
+                            ->defaultItems(0)
+                            ->addActionLabel('Добавить телефон')
+                            ->columnSpanFull(),
+                    ])
+                    ->defaultItems(0)
+                    ->addActionLabel('Добавить адрес')
+                    ->columnSpanFull()
+                    ->collapsible(),
                 Repeater::make('phones')
-                    ->label('Телефоны компании')
+                    ->label('Телефоны без адреса на карте')
+                    ->helperText('Например, единый номер офиса. Один номер можно отметить как основной — он показывается в шапке сайта.')
                     ->schema([
                         TextInput::make('label')
                             ->label('Для чего')
-                            ->placeholder('Отдел продаж, бухгалтерия…')
+                            ->placeholder('Офис, отдел продаж…')
                             ->maxLength(120)
                             ->required(),
                         TextInput::make('number')

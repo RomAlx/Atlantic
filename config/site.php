@@ -5,8 +5,6 @@ return [
     'defaults' => [
         'company_name' => 'Atlantic Group',
         'email' => 'info@atlantic.local',
-        'address' => 'Москва, ул. Примерная, 1',
-        'warehouse_address' => 'МО, Логистический парк, 3',
     ],
 
     /*

@@ -15,6 +15,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Support\HtmlString;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -31,8 +32,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
-            ->brandName(fn (): string => (string) config('branding.panel_company_name', 'Atlantic Group'))
-            ->brandLogo(fn (): string => asset(config('branding.panel_logo_path', 'images/original/at_logo_header.png')))
+            ->brandName(fn (): HtmlString => new HtmlString('<span class="fi-brand-name"><strong>Atlantic</strong> GROUP</span>'))
+            ->brandLogo(null)
             ->colors([
                 'primary' => Color::Amber,
             ])

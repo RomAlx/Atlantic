@@ -20,6 +20,8 @@ class Product extends Model
         'description',
         'specifications',
         'sort_order',
+        'view_count',
+        'boost_popular',
         'is_active',
         'seo_title',
         'seo_description',
@@ -28,6 +30,7 @@ class Product extends Model
     protected $casts = [
         'specifications' => 'array',
         'is_active' => 'boolean',
+        'boost_popular' => 'boolean',
     ];
 
     public function category(): BelongsTo

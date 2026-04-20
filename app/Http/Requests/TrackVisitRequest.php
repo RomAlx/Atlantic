@@ -17,6 +17,7 @@ class TrackVisitRequest extends FormRequest
             'path' => ['required', 'string', 'max:255'],
             'route_name' => ['nullable', 'string', 'max:64'],
             'product_slug' => ['nullable', 'string', 'max:255'],
+            'category_slug' => ['nullable', 'string', 'max:255'],
             'support_article_slug' => ['nullable', 'string', 'max:255'],
         ];
     }

@@ -1,9 +1,14 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 import SiteHeaderDesktop from '../components/SiteHeaderDesktop.vue';
 import SiteHeaderMobile from '../components/SiteHeaderMobile.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import FeedbackForm from '../components/FeedbackForm.vue';
+
+const route = useRoute();
+const showGlobalFeedbackForm = computed(() => route.name !== 'ask-question');
+const feedbackFormHeading = computed(() => (route.name === 'product' ? 'Задать вопрос' : 'Форма обратной связи'));
 
 defineProps({
     query: {
@@ -46,6 +51,10 @@ onUnmounted(() => {
     <SiteHeaderDesktop v-if="isDesktop" :query="query" :settings="settings" />
     <SiteHeaderMobile v-else :query="query" :settings="settings" />
     <slot />
-    <FeedbackForm :source-path="sourcePath" />
+    <FeedbackForm
+        v-if="showGlobalFeedbackForm"
+        :source-path="sourcePath"
+        :heading="feedbackFormHeading"
+    />
     <SiteFooter :settings="settings" />
 </template>

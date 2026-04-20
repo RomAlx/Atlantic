@@ -8,9 +8,11 @@ onMounted(() => {
 </script>
 
 <template>
+    <SiteBreadcrumbs :items="[{ label: 'Главная', to: '/' }, { label: 'Страница не найдена' }]" />
     <section>
-        <SiteBreadcrumbs :items="[{ label: 'Главная', to: '/' }, { label: 'Страница не найдена' }]" />
-        <h1 class="mb-4 text-3xl font-semibold">Страница не найдена</h1>
-        <p>Проверьте адрес страницы или вернитесь на главную.</p>
+        <div class="container py-5">
+        <div class="h1"><span class="underline_bottom">Страница не найдена</span></div>
+        <div class="row g-3 justify-content-center h4">Проверьте адрес страницы или вернитесь на главную.</div>
+        </div>
     </section>
 </template>

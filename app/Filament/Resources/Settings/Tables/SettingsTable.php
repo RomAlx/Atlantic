@@ -28,15 +28,15 @@ class SettingsTable
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('address')
-                    ->label('Адрес')
-                    ->limit(28)
-                    ->tooltip(fn ($state) => $state)
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('warehouse_address')
-                    ->label('Склад')
-                    ->limit(28)
-                    ->tooltip(fn ($state) => $state)
+                TextColumn::make('contact_addresses')
+                    ->label('Площадки')
+                    ->formatStateUsing(function ($state): string {
+                        if (! is_array($state) || $state === []) {
+                            return '—';
+                        }
+
+                        return (string) count($state);
+                    })
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Обновлено')

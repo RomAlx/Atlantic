@@ -45,6 +45,16 @@ class CatalogSeeder extends Seeder
             ]
         );
 
+        $wood->update([
+            'related_category_ids' => [$construction->id],
+        ]);
+        $construction->update([
+            'related_category_ids' => [$wood->id, $pva->id],
+        ]);
+        $pva->update([
+            'related_category_ids' => [$construction->id],
+        ]);
+
         $this->seedCategoryImage($wood, 'klei-dlya-mebeli-i-derevoobrabotki');
         $this->seedCategoryImage($construction, 'klei-dlya-stroitelstva-i-remonta');
         $this->seedCategoryImage($pva, 'pva-i-dispersionnye-sistemy');
@@ -60,6 +70,8 @@ class CatalogSeeder extends Seeder
                 'specifications' => ['Основа' => 'PVA', 'Цвет' => 'Белый'],
                 'sort_order' => 10,
                 'is_active' => true,
+                'view_count' => 180,
+                'boost_popular' => false,
             ]
         );
 
@@ -74,6 +86,8 @@ class CatalogSeeder extends Seeder
                 'specifications' => ['Основа' => 'Полимерная дисперсия', 'Расход' => '250 г/м2'],
                 'sort_order' => 20,
                 'is_active' => true,
+                'view_count' => 95,
+                'boost_popular' => true,
             ]
         );
 
@@ -88,6 +102,8 @@ class CatalogSeeder extends Seeder
                 'specifications' => ['Основа' => 'PVA', 'Класс' => 'D3/D4'],
                 'sort_order' => 30,
                 'is_active' => true,
+                'view_count' => 320,
+                'boost_popular' => false,
             ]
         );
 
@@ -102,6 +118,8 @@ class CatalogSeeder extends Seeder
                 'specifications' => ['Основа' => 'PUR', 'Класс' => 'D4'],
                 'sort_order' => 40,
                 'is_active' => true,
+                'view_count' => 210,
+                'boost_popular' => true,
             ]
         );
 

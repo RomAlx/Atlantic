@@ -35,24 +35,31 @@ watch(() => route.query.q, load);
         <h1 class="h1"><span class="underline_bottom">Каталог продукции</span></h1>
         <p v-if="loading" class="text-center">Загрузка...</p>
         <p v-else-if="error" class="text-center">{{ error }}</p>
-        <div v-else class="row justify-content-center">
-            <div v-for="item in data.items" :key="item.id" class="col-6 col-md-6 col-xl-3">
-                <RouterLink class="av_not_link" :to="`/catalog/${item.slug}`">
-                    <div class="at_card_cat">
+        <div v-else class="row g-3 justify-content-center at_card_grid_row">
+            <div v-for="item in data.items" :key="item.id" class="col-6 col-lg-4">
+                <article class="at_support_card h-100">
+                    <RouterLink :to="`/catalog/${item.slug}`" class="text-reset text-decoration-none d-flex flex-column h-100">
                         <img
-                            class="img-fluid at_preview_fill"
+                            class="at_support_card__image"
                             :src="resolveMediaUrl(item.image, '/images/source/normalized/image.png')"
                             :alt="item.name"
                         >
-                        <div class="at_naim_tov">{{ item.name }}</div>
-                        <div v-if="item.subcategories_count || item.products_count" class="small text-secondary px-2 pb-1">
-                            <span v-if="item.subcategories_count">{{ item.subcategories_count }} подкатегорий</span>
-                            <span v-if="item.subcategories_count && item.products_count"> · </span>
-                            <span v-if="item.products_count">{{ item.products_count }} товаров</span>
+                        <div class="at_support_card__body">
+                            <h2 class="at_support_card__title">{{ item.name }}</h2>
+                            <p
+                                v-if="item.subcategories_count || item.products_count"
+                                class="at_support_card__description d-none d-md-block"
+                            >
+                                <span v-if="item.subcategories_count">{{ item.subcategories_count }} подкатегорий</span>
+                                <span v-if="item.subcategories_count && item.products_count"> · </span>
+                                <span v-if="item.products_count">{{ item.products_count }} товаров</span>
+                            </p>
+                            <div class="at_but av_otst_tb">
+                                <span class="at_but_style">Подробнее</span>
+                            </div>
                         </div>
-                        <div class="at_but av_otst_tb"><span class="at_but_style">Подробнее</span></div>
-                    </div>
-                </RouterLink>
+                    </RouterLink>
+                </article>
             </div>
         </div>
     </section>

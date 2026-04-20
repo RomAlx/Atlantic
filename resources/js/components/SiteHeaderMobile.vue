@@ -79,7 +79,7 @@ const toggle = () => {
                             <li><RouterLink class="at_nav_link" to="/contacts" @click="open = false">Контакты</RouterLink></li>
                         </ul>
                         <div class="text-center mt-3">
-                            <a class="at_but_style" href="#feedback-form" @click="open = false">Задать вопрос</a>
+                            <RouterLink class="at_but_style" to="/ask" @click="open = false">Задать вопрос</RouterLink>
                         </div>
                     </nav>
                 </div>

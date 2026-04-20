@@ -18,6 +18,7 @@ class Category extends Model
         'name',
         'slug',
         'description',
+        'related_category_ids',
         'image_path',
         'sort_order',
         'is_active',
@@ -27,11 +28,13 @@ class Category extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'related_category_ids' => 'array',
     ];
 
     protected static function booted(): void
     {
         static::saving(function (Category $category): void {
+            $category->related_category_ids = static::normalizeRelatedCategoryIds($category);
             if (! $category->parent_id) {
                 $category->tree_path = '';
             } else {
@@ -111,6 +114,37 @@ class Category extends Model
         }
 
         return true;
+    }
+
+    /**
+     * @return list<int>
+     */
+    public static function normalizeRelatedCategoryIds(Category $category): array
+    {
+        $raw = $category->related_category_ids;
+        if (! is_array($raw)) {
+            return [];
+        }
+
+        $ids = collect($raw)
+            ->map(fn ($v) => (int) $v)
+            ->filter(fn (int $id) => $id > 0 && $id !== (int) $category->id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($ids === []) {
+            return [];
+        }
+
+        return Category::query()
+            ->whereIn('id', $ids)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
     }
 
     public function recalculateTreePathAndSaveDown(): void

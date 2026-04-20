@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories\Schemas;
 
+use App\Models\Category;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -42,6 +43,25 @@ class CategoryForm
                     ->rows(4)
                     ->columnSpanFull()
                     ->label('Описание'),
+                Select::make('related_category_ids')
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->label('Связанные категории')
+                    ->helperText('Товары из этих категорий показываются в блоке «Сопутствующие» на карточке товара, по популярности.')
+                    ->options(function (?Category $record): array {
+                        $query = Category::query()
+                            ->where('is_active', true)
+                            ->orderBy('tree_path')
+                            ->orderBy('sort_order');
+
+                        if ($record?->id) {
+                            $query->whereKeyNot($record->id);
+                        }
+
+                        return $query->pluck('name', 'id')->all();
+                    })
+                    ->columnSpanFull(),
                 FileUpload::make('image_path')
                     ->image()
                     ->disk('public')

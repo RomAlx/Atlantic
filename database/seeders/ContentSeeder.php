@@ -18,18 +18,27 @@ class ContentSeeder extends Seeder
             'company_name' => $defaults['company_name'] ?? 'Atlantic Group',
             'email' => 'info@atlantic-group.ru',
             'feedback_email' => 'aaromanovsky@ya.ru',
-            'address' => 'Москва, Оружейный переулок, 41',
-            'warehouse_address' => 'Московская область, Химки, Сходненская улица, с1кГ',
-            'phones' => [
+            'contact_addresses' => [
                 [
-                    'label' => 'Отдел продаж',
-                    'number' => '+79011234567',
-                    'is_main' => true,
+                    'title' => 'Склад Москва',
+                    'address' => 'г. Москва, ул. Дубнинская, 79Б, оф. 3',
+                    'phones' => [
+                        ['label' => 'Склад', 'number' => '+74959436447'],
+                    ],
                 ],
                 [
-                    'label' => 'Техническая поддержка',
-                    'number' => '+79015551122',
-                    'is_main' => false,
+                    'title' => 'Склад, Пенза',
+                    'address' => 'г. Пенза, ул. Аустрина, 63, корп. 5',
+                    'phones' => [
+                        ['label' => 'Склад', 'number' => '+79015936447'],
+                    ],
+                ],
+            ],
+            'phones' => [
+                [
+                    'label' => 'Офис Москва',
+                    'number' => '+74952120602',
+                    'is_main' => true,
                 ],
             ],
             'social_links' => [
