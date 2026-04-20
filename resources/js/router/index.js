@@ -7,6 +7,8 @@ import ContactsView from '../views/ContactsView.vue';
 import HomeView from '../views/HomeView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 import SearchView from '../views/SearchView.vue';
+import SupportArticleView from '../views/SupportArticleView.vue';
+import SupportView from '../views/SupportView.vue';
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -17,6 +19,8 @@ const router = createRouter({
         { path: '/catalog/:categorySlug/:productSlug', name: 'product', component: CatalogProductView },
         { path: '/contacts', name: 'contacts', component: ContactsView },
         { path: '/search', name: 'search', component: SearchView },
+        { path: '/support', name: 'support', component: SupportView },
+        { path: '/support/:slug', name: 'support-article', component: SupportArticleView },
         { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView },
     ],
     scrollBehavior() {

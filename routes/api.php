@@ -11,6 +11,8 @@ Route::get('/catalog/{categorySlug}', [SiteApiController::class, 'category']);
 Route::get('/catalog/{categorySlug}/{productSlug}', [SiteApiController::class, 'product']);
 Route::get('/pages/{slug}', [SiteApiController::class, 'page']);
 Route::get('/search', [SiteApiController::class, 'search']);
+Route::get('/support', [SiteApiController::class, 'supportArticles']);
+Route::get('/support/{slug}', [SiteApiController::class, 'supportArticle']);
 Route::get('/settings', [SiteApiController::class, 'settings']);
 Route::get('/contacts', [SiteApiController::class, 'contacts']);
 Route::post('/feedback', [SiteApiController::class, 'feedback'])->middleware('throttle:10,1');

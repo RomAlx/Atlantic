@@ -75,6 +75,7 @@ const toggle = () => {
                             <li><RouterLink class="at_nav_link" to="/" @click="open = false">Главная</RouterLink></li>
                             <li><RouterLink class="at_nav_link" to="/about" @click="open = false">О компании</RouterLink></li>
                             <li><RouterLink class="at_nav_link" to="/catalog" @click="open = false">Каталог</RouterLink></li>
+                            <li><RouterLink class="at_nav_link" to="/support" @click="open = false">Техподдержка</RouterLink></li>
                             <li><RouterLink class="at_nav_link" to="/contacts" @click="open = false">Контакты</RouterLink></li>
                         </ul>
                         <div class="text-center mt-3">

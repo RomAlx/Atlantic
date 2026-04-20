@@ -81,6 +81,18 @@ class SiteApiController extends Controller
         return response()->json($this->site->search($query));
     }
 
+    public function supportArticles(Request $request): JsonResponse
+    {
+        $query = trim((string) $request->string('q'));
+
+        return response()->json($this->site->supportArticles($query));
+    }
+
+    public function supportArticle(string $slug): JsonResponse
+    {
+        return response()->json($this->site->supportArticle($slug));
+    }
+
     public function settings(): JsonResponse
     {
         return response()->json($this->site->settings());

@@ -7,11 +7,14 @@ use App\Contracts\Repositories\FeedbackRequestRepositoryInterface;
 use App\Contracts\Repositories\PageRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
 use App\Contracts\Repositories\SettingRepositoryInterface;
+use App\Contracts\Repositories\SupportArticleRepositoryInterface;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\Setting;
+use App\Models\SupportArticle;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
 
 readonly class SiteService
 {
@@ -19,6 +22,7 @@ readonly class SiteService
         private CategoryRepositoryInterface $categories,
         private ProductRepositoryInterface $products,
         private PageRepositoryInterface $pages,
+        private SupportArticleRepositoryInterface $supportArticles,
         private SettingRepositoryInterface $settings,
         private FeedbackRequestRepositoryInterface $feedbackRequests,
     ) {}
@@ -228,6 +232,34 @@ readonly class SiteService
     }
 
     /**
+     * @return array{query: string, items: list<array<string, mixed>>}
+     */
+    public function supportArticles(string $query): array
+    {
+        $items = $this->supportArticles->searchActive($query !== '' ? $query : null)
+            ->map(fn (SupportArticle $article) => $this->supportArticleCardPayload($article))
+            ->values()
+            ->all();
+
+        return [
+            'query' => $query,
+            'items' => $items,
+        ];
+    }
+
+    /**
+     * @return array{item: array<string, mixed>}
+     */
+    public function supportArticle(string $slug): array
+    {
+        $article = $this->supportArticles->findActiveBySlug($slug);
+        $payload = $this->supportArticleDetailPayload($article);
+        $payload['content_html'] = Str::markdown((string) ($article->content_md ?? ''));
+
+        return ['item' => $payload];
+    }
+
+    /**
      * @return array{item: array<string, mixed>|null}
      */
     public function settings(): array
@@ -413,5 +445,39 @@ readonly class SiteService
             ])
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function supportArticleCardPayload(SupportArticle $article): array
+    {
+        return [
+            'id' => $article->id,
+            'title' => $article->title,
+            'slug' => $article->slug,
+            'description' => $article->description,
+            'preview_image' => $article->previewImagePublicUrl(),
+            'video_url' => $article->video_url,
+            'updated_at' => $article->updated_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function supportArticleDetailPayload(SupportArticle $article): array
+    {
+        return [
+            'id' => $article->id,
+            'title' => $article->title,
+            'slug' => $article->slug,
+            'description' => $article->description,
+            'content_md' => $article->content_md,
+            'preview_image' => $article->previewImagePublicUrl(),
+            'video_url' => $article->video_url,
+            'seo_title' => $article->seo_title,
+            'seo_description' => $article->seo_description,
+        ];
     }
 }

@@ -92,6 +92,7 @@ const companyName = computed(() => props.settings?.company_name || 'Atlantic Gro
                             <li><RouterLink to="/">Главная</RouterLink></li>
                             <li><RouterLink to="/about">О компании</RouterLink></li>
                             <li><RouterLink to="/catalog">Каталог</RouterLink></li>
+                            <li><RouterLink to="/support">Техподдержка</RouterLink></li>
                             <li><RouterLink to="/contacts">Контакты</RouterLink></li>
                         </ul>
                     </div>

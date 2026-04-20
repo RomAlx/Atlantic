@@ -61,6 +61,7 @@ const displayPhone = computed(
                         <div class="item"><RouterLink class="at_nav_link" to="/">Главная</RouterLink></div>
                         <div class="item"><RouterLink class="at_nav_link" to="/about">О компании</RouterLink></div>
                         <div class="item"><RouterLink class="at_nav_link" to="/catalog">Каталог</RouterLink></div>
+                        <div class="item"><RouterLink class="at_nav_link" to="/support">Техподдержка</RouterLink></div>
                         <div class="item"><RouterLink class="at_nav_link" to="/contacts">Контакты</RouterLink></div>
                     </nav>
                     <div class="at_but at_but_head m-0">
