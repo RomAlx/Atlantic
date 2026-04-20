@@ -3,6 +3,9 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Filament\Widgets\ContentVisitsChartWidget;
+use App\Filament\Widgets\SectionVisitsChartWidget;
+use App\Filament\Widgets\SiteVisitsOverviewWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -38,8 +41,10 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
+                SiteVisitsOverviewWidget::class,
+                SectionVisitsChartWidget::class,
+                ContentVisitsChartWidget::class,
                 AccountWidget::class,
             ])
             ->middleware([

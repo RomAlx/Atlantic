@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetchJson } from '../services/api';
+import SiteBreadcrumbs from '../components/SiteBreadcrumbs.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -39,6 +40,7 @@ watch(() => route.query.q, load);
 
 <template>
     <section>
+        <SiteBreadcrumbs :items="[{ label: 'Главная', to: '/' }, { label: 'Техподдержка' }]" />
         <h1 class="h1"><span class="underline_bottom">Техническая поддержка</span></h1>
 
         <form class="at_support_search mb-4" @submit.prevent="onSubmit">

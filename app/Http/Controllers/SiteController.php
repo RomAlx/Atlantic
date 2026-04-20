@@ -13,10 +13,12 @@ class SiteController extends Controller
     public function app(): View
     {
         $setting = Setting::query()->first();
+        $counterId = trim((string) ($setting?->yandex_metrika_counter_id ?? ''));
+        $mapsApiKey = trim((string) ($setting?->yandex_maps_api_key ?? ''));
 
         return view('site', [
-            'yandexMetrikaEnabled' => (bool) ($setting?->yandex_metrika_enabled ?? false),
-            'yandexMetrikaCounterId' => trim((string) ($setting?->yandex_metrika_counter_id ?? '')),
+            'yandexMetrikaCounterId' => $counterId !== '' ? $counterId : null,
+            'yandexMapsApiKey' => $mapsApiKey !== '' ? $mapsApiKey : null,
         ]);
     }
 

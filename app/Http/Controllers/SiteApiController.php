@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFeedbackRequest;
+use App\Http\Requests\TrackVisitRequest;
 use App\Services\Site\SiteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -109,5 +110,12 @@ class SiteApiController extends Controller
             $this->site->submitFeedback($request->validated()),
             201
         );
+    }
+
+    public function hit(TrackVisitRequest $request): JsonResponse
+    {
+        $this->site->trackVisit($request->validated());
+
+        return response()->json(['ok' => true]);
     }
 }

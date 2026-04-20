@@ -2,6 +2,8 @@
 import { computed, onMounted, ref } from 'vue';
 import { fetchJson } from '../services/api';
 import SocialIcon from '../components/SocialIcon.vue';
+import SiteBreadcrumbs from '../components/SiteBreadcrumbs.vue';
+import YandexAddressMap from '../components/YandexAddressMap.vue';
 
 const loading = ref(true);
 const error = ref('');
@@ -37,6 +39,11 @@ const socialLinks = computed(() => {
     return [];
 });
 
+const hasMapsApiKey = computed(() => {
+    const key = String(globalThis?.__YANDEX_MAPS_API_KEY__ ?? '').trim();
+    return key.length > 0;
+});
+
 onMounted(async () => {
     loading.value = true;
     error.value = '';
@@ -54,6 +61,7 @@ onMounted(async () => {
 
 <template>
     <section class="at_contacts_page">
+        <SiteBreadcrumbs :items="[{ label: 'Главная', to: '/' }, { label: 'Контакты' }]" />
         <h1 class="h1"><span class="underline_bottom">Контакты</span></h1>
         <p v-if="loading" class="text-center">Загрузка...</p>
         <p v-else-if="error" class="text-center text-danger">{{ error }}</p>
@@ -63,10 +71,16 @@ onMounted(async () => {
             <div v-if="item.address" class="mb-3 text-center">
                 <span class="text-secondary d-block small">Адрес</span>
                 {{ item.address }}
+                <div v-if="hasMapsApiKey" class="mt-3">
+                    <YandexAddressMap :address="item.address" :height="280" />
+                </div>
             </div>
             <div v-if="item.warehouse_address" class="mb-3 text-center">
                 <span class="text-secondary d-block small">Склад</span>
                 {{ item.warehouse_address }}
+                <div v-if="hasMapsApiKey" class="mt-3">
+                    <YandexAddressMap :address="item.warehouse_address" :height="280" />
+                </div>
             </div>
             <div v-if="phoneRows.length" class="mb-3 text-center">
                 <span class="text-secondary d-block small mb-2">Телефоны</span>

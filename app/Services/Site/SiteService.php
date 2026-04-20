@@ -3,17 +3,19 @@
 namespace App\Services\Site;
 
 use App\Contracts\Repositories\CategoryRepositoryInterface;
-use App\Contracts\Repositories\FeedbackRequestRepositoryInterface;
 use App\Contracts\Repositories\PageRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
 use App\Contracts\Repositories\SettingRepositoryInterface;
 use App\Contracts\Repositories\SupportArticleRepositoryInterface;
 use App\Models\Category;
+use App\Models\HomeBanner;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Models\SupportArticle;
+use App\Models\PageVisit;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 readonly class SiteService
@@ -24,11 +26,10 @@ readonly class SiteService
         private PageRepositoryInterface $pages,
         private SupportArticleRepositoryInterface $supportArticles,
         private SettingRepositoryInterface $settings,
-        private FeedbackRequestRepositoryInterface $feedbackRequests,
     ) {}
 
     /**
-     * @return array{categories: list<array<string, mixed>>, products: list<array<string, mixed>>}
+     * @return array{categories: list<array<string, mixed>>, products: list<array<string, mixed>>, banners: list<array<string, mixed>>}
      */
     public function home(): array
     {
@@ -39,6 +40,23 @@ readonly class SiteService
 
         $products = $this->products->getActiveFeaturedForHome(8)
             ->map(fn (Product $product) => $this->productSummaryPayload($product))
+            ->values()
+            ->all();
+
+        $banners = HomeBanner::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (HomeBanner $banner) => [
+                'id' => $banner->id,
+                'title' => $banner->title,
+                'description' => $banner->description,
+                'button_text' => $banner->button_text,
+                'button_link' => $banner->button_link,
+                'button_color' => $banner->button_color,
+                'background_image' => $banner->backgroundImagePublicUrl(),
+            ])
             ->values()
             ->all();
 
@@ -58,6 +76,7 @@ readonly class SiteService
         return [
             'categories' => $categories,
             'products' => $products,
+            'banners' => $banners,
             'home_content' => [
                 'about_paragraph_1' => filled($setting?->home_about_paragraph_1)
                     ? (string) $setting->home_about_paragraph_1
@@ -203,16 +222,37 @@ readonly class SiteService
                     'sort_order' => $img->sort_order,
                     'is_main' => $img->is_main,
                 ])->values()->all(),
+                'popular_items' => $this->products->getActivePopular(6, $product->id)
+                    ->map(fn (Product $row) => $this->productSummaryPayload($row))
+                    ->values()
+                    ->all(),
+                'related_items' => $this->products->getActiveRelatedByCategory((int) $product->category_id, 6, $product->id)
+                    ->map(fn (Product $row) => $this->productSummaryPayload($row))
+                    ->values()
+                    ->all(),
             ],
         ];
     }
 
     /**
-     * @return array{item: Page}
+     * @return array{item: array<string, mixed>}
      */
     public function page(string $slug): array
     {
-        return ['item' => $this->pages->findActiveBySlug($slug)];
+        $page = $this->pages->findActiveBySlug($slug);
+        $md = (string) ($page->content_md ?? '');
+        $html = $md !== '' ? Str::markdown($md) : (string) ($page->content ?? '');
+
+        return ['item' => [
+            'id' => $page->id,
+            'title' => $page->title,
+            'slug' => $page->slug,
+            'content_md' => $page->content_md,
+            'content_html' => $html,
+            'video_url' => $page->video_url,
+            'seo_title' => $page->seo_title,
+            'seo_description' => $page->seo_description,
+        ]];
     }
 
     /**
@@ -320,18 +360,69 @@ readonly class SiteService
 
     /**
      * @param  array<string, mixed>  $data
-     * @return array{message: string, id: int}
+     * @return array{message: string}
      */
     public function submitFeedback(array $data): array
     {
-        $feedback = $this->feedbackRequests->create($data + [
-            'status' => 'new',
+        $setting = $this->settings->first();
+        $to = $setting?->feedback_email ?: 'aaromanovsky@ya.ru';
+        $name = trim((string) ($data['name'] ?? ''));
+        $phone = trim((string) ($data['phone'] ?? ''));
+        $email = trim((string) ($data['email'] ?? ''));
+        $message = trim((string) ($data['message'] ?? ''));
+        $source = trim((string) ($data['source_page'] ?? ''));
+
+        $html = (string) view('emails.feedback-request', [
+            'name' => $name,
+            'phone' => $phone,
+            'email' => $email,
+            'message' => $message,
+            'source' => $source,
         ]);
 
+        Mail::html($html, function ($mail) use ($to, $email, $name): void {
+            $mail->to($to)
+                ->subject('Заявка с сайта Atlantic Group');
+
+            if ($email !== '') {
+                $mail->replyTo($email, $name !== '' ? $name : null);
+            }
+        });
+
         return [
-            'message' => 'Заявка отправлена',
-            'id' => $feedback->id,
+            'message' => 'Заявка отправлена на email',
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function trackVisit(array $data): void
+    {
+        $routeName = (string) ($data['route_name'] ?? '');
+        $productSlug = filled($data['product_slug'] ?? null) ? (string) $data['product_slug'] : null;
+        $supportArticleSlug = filled($data['support_article_slug'] ?? null) ? (string) $data['support_article_slug'] : null;
+
+        $section = match ($routeName) {
+            'home' => 'home',
+            'about' => 'about',
+            'catalog', 'category' => 'catalog',
+            'product' => 'product',
+            'contacts' => 'contacts',
+            'search' => 'search',
+            'support' => 'support',
+            'support-article' => 'support-article',
+            default => 'other',
+        };
+
+        PageVisit::query()->create([
+            'path' => (string) ($data['path'] ?? '/'),
+            'route_name' => $routeName !== '' ? $routeName : null,
+            'section' => $section,
+            'product_slug' => $productSlug,
+            'support_article_slug' => $supportArticleSlug,
+            'visited_at' => now(),
+        ]);
     }
 
     /**

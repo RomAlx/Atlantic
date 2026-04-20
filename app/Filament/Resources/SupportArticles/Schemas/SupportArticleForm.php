@@ -6,7 +6,6 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
@@ -20,10 +19,8 @@ class SupportArticleForm
                 TextInput::make('title')
                     ->required()
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
-                        if (blank($get('slug'))) {
-                            $set('slug', Str::slug((string) $state));
-                        }
+                    ->afterStateUpdated(function (?string $state, Set $set): void {
+                        $set('slug', Str::slug((string) $state));
                     })
                     ->maxLength(255)
                     ->label('Заголовок'),
@@ -57,7 +54,7 @@ class SupportArticleForm
                     ->maxLength(2048)
                     ->placeholder('https://...')
                     ->label('Ссылка на видео')
-                    ->helperText('YouTube, Vimeo или прямой MP4/WebM URL.'),
+                    ->helperText('Поддерживаются YouTube и RuTube ссылки.'),
                 Toggle::make('is_active')
                     ->default(true)
                     ->required()

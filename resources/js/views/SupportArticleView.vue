@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchJson } from '../services/api';
+import SiteBreadcrumbs from '../components/SiteBreadcrumbs.vue';
 
 const route = useRoute();
 const loading = ref(true);
@@ -105,9 +106,13 @@ watch(() => route.params.slug, load);
 
 <template>
     <section class="at_support_article_wrap">
-        <p class="mb-3">
-            <RouterLink to="/support" class="text-decoration-none">&larr; Назад к статьям</RouterLink>
-        </p>
+        <SiteBreadcrumbs
+            :items="[
+                { label: 'Главная', to: '/' },
+                { label: 'Техподдержка', to: '/support' },
+                { label: data.item?.title || 'Статья' },
+            ]"
+        />
 
         <p v-if="loading" class="text-center">Загрузка...</p>
         <p v-else-if="error" class="text-center">{{ error }}</p>
@@ -124,7 +129,7 @@ watch(() => route.params.slug, load);
 
             <p v-if="data.item.description" class="lead text-center mb-4">{{ data.item.description }}</p>
 
-            <div class="prose max-w-none" v-html="data.item.content_html || ''" />
+            <div class="prose max-w-none at_md_prose" v-html="data.item.content_html || ''" />
 
             <div v-if="videoEmbedUrl && !isDirectVideo" class="at_support_video mt-4">
                 <iframe

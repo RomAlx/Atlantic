@@ -147,4 +147,35 @@ class ProductRepository implements ProductRepositoryInterface
             ->filter(fn (Product $p) => $p->category->isEffectiveActive())
             ->values();
     }
+
+    public function getActivePopular(int $limit, ?int $exceptProductId = null): Collection
+    {
+        return Product::query()
+            ->with('category:id,name,slug,parent_id,is_active')
+            ->with(['images' => fn ($q) => $q->orderByDesc('is_main')->orderBy('sort_order')])
+            ->where('is_active', true)
+            ->when($exceptProductId !== null, fn ($q) => $q->where('id', '!=', $exceptProductId))
+            ->orderBy('sort_order')
+            ->orderByDesc('updated_at')
+            ->limit($limit)
+            ->get(['id', 'category_id', 'name', 'slug', 'short_description', 'sku'])
+            ->filter(fn (Product $p) => $p->category->isEffectiveActive())
+            ->values();
+    }
+
+    public function getActiveRelatedByCategory(int $categoryId, int $limit, ?int $exceptProductId = null): Collection
+    {
+        return Product::query()
+            ->with('category:id,name,slug,parent_id,is_active')
+            ->with(['images' => fn ($q) => $q->orderByDesc('is_main')->orderBy('sort_order')])
+            ->where('category_id', $categoryId)
+            ->where('is_active', true)
+            ->when($exceptProductId !== null, fn ($q) => $q->where('id', '!=', $exceptProductId))
+            ->orderBy('sort_order')
+            ->orderByDesc('updated_at')
+            ->limit($limit)
+            ->get(['id', 'category_id', 'name', 'slug', 'short_description', 'sku'])
+            ->filter(fn (Product $p) => $p->category->isEffectiveActive())
+            ->values();
+    }
 }

@@ -6,6 +6,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Spatie\Permission\Models\Role;
 
 class UserForm
 {
@@ -42,6 +43,10 @@ class UserForm
                     ->multiple()
                     ->preload()
                     ->searchable()
+                    ->options(fn (): array => Role::query()
+                        ->where('name', 'admin')
+                        ->pluck('name', 'name')
+                        ->all())
                     ->label('Роли'),
             ]);
     }

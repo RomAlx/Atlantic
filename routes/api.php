@@ -16,3 +16,4 @@ Route::get('/support/{slug}', [SiteApiController::class, 'supportArticle']);
 Route::get('/settings', [SiteApiController::class, 'settings']);
 Route::get('/contacts', [SiteApiController::class, 'contacts']);
 Route::post('/feedback', [SiteApiController::class, 'feedback'])->middleware('throttle:10,1');
+Route::post('/visits/hit', [SiteApiController::class, 'hit'])->middleware('throttle:240,1');

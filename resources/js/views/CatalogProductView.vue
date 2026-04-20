@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchJson } from '../services/api';
 import ProductCardSlider from '../components/ProductCardSlider.vue';
+import SiteBreadcrumbs from '../components/SiteBreadcrumbs.vue';
 
 const route = useRoute();
 const loading = ref(true);
@@ -29,6 +30,14 @@ watch(() => [route.params.categorySlug, route.params.productSlug], load);
 
 <template>
     <section>
+        <SiteBreadcrumbs
+            :items="[
+                { label: 'Главная', to: '/' },
+                { label: 'Каталог', to: '/catalog' },
+                { label: data.item?.category?.name || 'Категория', to: data.item?.category?.slug ? `/catalog/${data.item.category.slug}` : null },
+                { label: data.item?.name ?? 'Товар' },
+            ]"
+        />
         <h1 class="h1"><span class="underline_bottom">{{ data.item?.name ?? 'Товар' }}</span></h1>
         <p v-if="loading" class="text-center">Загрузка...</p>
         <p v-else-if="error" class="text-center">{{ error }}</p>
@@ -65,6 +74,44 @@ watch(() => [route.params.categorySlug, route.params.productSlug], load);
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div v-if="(data.item?.popular_items ?? []).length" class="mt-5">
+                <h2 class="at_product_specs__title">Популярные товары</h2>
+                <div class="row g-3">
+                    <div v-for="item in data.item.popular_items" :key="`popular-${item.id}`" class="col-6 col-md-4 col-xl-3">
+                        <div class="at_card_product_list">
+                            <div class="at_card_product_list__media">
+                                <ProductCardSlider variant="card" :images="item.images" :name="item.name" fallback="/images/source/normalized/image-3.jpg" />
+                            </div>
+                            <div class="at_card_product_list__body">
+                                <div class="at_card_product_list__title">{{ item.name }}</div>
+                                <div class="at_card_product_list__action">
+                                    <RouterLink class="at_but_style" :to="`/catalog/${item.category.slug}/${item.slug}`">Подробнее</RouterLink>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="(data.item?.related_items ?? []).length" class="mt-5">
+                <h2 class="at_product_specs__title">Связанные товары</h2>
+                <div class="row g-3">
+                    <div v-for="item in data.item.related_items" :key="`related-${item.id}`" class="col-6 col-md-4 col-xl-3">
+                        <div class="at_card_product_list">
+                            <div class="at_card_product_list__media">
+                                <ProductCardSlider variant="card" :images="item.images" :name="item.name" fallback="/images/source/normalized/image-3.jpg" />
+                            </div>
+                            <div class="at_card_product_list__body">
+                                <div class="at_card_product_list__title">{{ item.name }}</div>
+                                <div class="at_card_product_list__action">
+                                    <RouterLink class="at_but_style" :to="`/catalog/${item.category.slug}/${item.slug}`">Подробнее</RouterLink>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

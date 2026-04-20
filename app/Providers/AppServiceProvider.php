@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Contracts\Repositories\CategoryRepositoryInterface;
-use App\Contracts\Repositories\FeedbackRequestRepositoryInterface;
 use App\Contracts\Repositories\PageRepositoryInterface;
 use App\Contracts\Repositories\ProductRepositoryInterface;
 use App\Contracts\Repositories\SettingRepositoryInterface;
@@ -11,7 +10,6 @@ use App\Contracts\Repositories\SupportArticleRepositoryInterface;
 use App\Models\Category;
 use App\Observers\CategoryCascadeObserver;
 use App\Repositories\CategoryRepository;
-use App\Repositories\FeedbackRequestRepository;
 use App\Repositories\PageRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\SettingRepository;
@@ -29,7 +27,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(PageRepositoryInterface::class, PageRepository::class);
         $this->app->bind(SettingRepositoryInterface::class, SettingRepository::class);
-        $this->app->bind(FeedbackRequestRepositoryInterface::class, FeedbackRequestRepository::class);
         $this->app->bind(SupportArticleRepositoryInterface::class, SupportArticleRepository::class);
     }
 
