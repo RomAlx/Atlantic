@@ -13,6 +13,8 @@ class Page extends Model
         'title',
         'slug',
         'content',
+        'content_md',
+        'video_url',
         'is_active',
         'seo_title',
         'seo_description',

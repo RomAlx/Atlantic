@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchJson } from '../services/api';
+import SiteBreadcrumbs from '../components/SiteBreadcrumbs.vue';
 import { resolveMediaUrl } from '../utils/media';
 
 const route = useRoute();
@@ -30,11 +31,12 @@ watch(() => route.query.q, load);
 
 <template>
     <section>
+        <SiteBreadcrumbs :items="[{ label: 'Главная', to: '/' }, { label: 'Каталог' }]" />
         <h1 class="h1"><span class="underline_bottom">Каталог продукции</span></h1>
         <p v-if="loading" class="text-center">Загрузка...</p>
         <p v-else-if="error" class="text-center">{{ error }}</p>
         <div v-else class="row justify-content-center">
-            <div v-for="item in data.items" :key="item.id" class="col-xxl-3 col-xl-3 col-lg-6 col-md-6 col-sm-12">
+            <div v-for="item in data.items" :key="item.id" class="col-6 col-md-6 col-xl-3">
                 <RouterLink class="av_not_link" :to="`/catalog/${item.slug}`">
                     <div class="at_card_cat">
                         <img

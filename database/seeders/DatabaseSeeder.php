@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             AuthSeeder::class,
             CatalogSeeder::class,
             ContentSeeder::class,
+            HomeBannerSeeder::class,
         ]);
     }
 }

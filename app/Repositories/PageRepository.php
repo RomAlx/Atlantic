@@ -12,6 +12,6 @@ class PageRepository implements PageRepositoryInterface
         return Page::query()
             ->where('slug', $slug)
             ->where('is_active', true)
-            ->firstOrFail(['id', 'title', 'slug', 'content', 'seo_title', 'seo_description']);
+            ->firstOrFail(['id', 'title', 'slug', 'content', 'content_md', 'video_url', 'seo_title', 'seo_description']);
     }
 }

@@ -28,6 +28,13 @@ class SettingForm
                     ->email()
                     ->maxLength(255)
                     ->label('Email'),
+                TextInput::make('feedback_email')
+                    ->email()
+                    ->default('aaromanovsky@ya.ru')
+                    ->required()
+                    ->maxLength(255)
+                    ->label('Email для заявок')
+                    ->helperText('Используется только для отправки заявок с сайта, на фронте не отображается.'),
                 TextInput::make('address')
                     ->maxLength(255)
                     ->label('Адрес'),
@@ -103,6 +110,20 @@ class SettingForm
                             ->maxItems(8)
                             ->addActionLabel('Добавить карточку')
                             ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull()
+                    ->collapsible(),
+                Section::make('Яндекс')
+                    ->schema([
+                        TextInput::make('yandex_metrika_counter_id')
+                            ->label('Metrika counter ID')
+                            ->maxLength(32)
+                            ->default('108684147')
+                            ->helperText('ID счетчика Яндекс.Метрики для фронта.'),
+                        TextInput::make('yandex_maps_api_key')
+                            ->label('Maps API key')
+                            ->maxLength(255)
+                            ->helperText('Ключ API для геокодирования и карт на странице контактов.'),
                     ])
                     ->columnSpanFull()
                     ->collapsible(),

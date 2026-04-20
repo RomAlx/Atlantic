@@ -9,7 +9,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
@@ -29,10 +28,8 @@ class ProductForm
                 TextInput::make('name')
                     ->required()
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
-                        if (blank($get('slug'))) {
-                            $set('slug', Str::slug((string) $state));
-                        }
+                    ->afterStateUpdated(function (?string $state, Set $set): void {
+                        $set('slug', Str::slug((string) $state));
                     })
                     ->maxLength(255)
                     ->label('Название'),

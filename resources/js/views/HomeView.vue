@@ -1,11 +1,12 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { fetchJson } from '../services/api';
+import HomeBannersCarousel from '../components/HomeBannersCarousel.vue';
 import { resolveMediaUrl } from '../utils/media';
 
 const loading = ref(true);
 const error = ref('');
-const data = ref({ categories: [], products: [], home_content: null });
+const data = ref({ categories: [], products: [], banners: [], home_content: null });
 
 const load = async () => {
     loading.value = true;
@@ -26,13 +27,9 @@ onMounted(load);
 
 <template>
     <section>
-        <section id="at_banner_home" style="background-image:url('/images/original/at_img_header_home.png')">
-            <div class="at_img_home_header at_home_slogan">
-                ДОВЕРЯЙ КАЧЕСТВУ!
-            </div>
-        </section>
+        <HomeBannersCarousel :items="data.banners || []" />
         <div class="container py-5" v-if="!loading && !error">
-            <div class="h1"><p><span class="underline_bottom">Каталог продукции</span></p></div>
+            <div class="h1"><span class="underline_bottom">Каталог продукции</span></div>
             <div class="row justify-content-center">
                 <div v-for="item in data.categories.slice(0,3)" :key="item.id" class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <RouterLink class="av_not_link" :to="`/catalog/${item.slug}`">
@@ -49,7 +46,7 @@ onMounted(load);
                 </div>
             </div>
 
-            <div class="h1 mt-3"><p><span class="underline_bottom">О компании</span></p></div>
+            <div class="h1 mt-3"><span class="underline_bottom">О компании</span></div>
             <div class="row justify-content-center align-items-center mb-5 text-center g-4">
                 <div class="col-md-5 mb-3 mb-md-0">
                     <img :src="'/images/original/at_img_about_home.png'" alt="О компании" class="img-fluid rounded-3 mx-auto d-block">
@@ -75,7 +72,7 @@ onMounted(load);
                 </div>
             </div>
 
-            <div class="h1"><p><span class="underline_bottom">Информация для клиентов</span></p></div>
+            <div class="h1"><span class="underline_bottom">Информация для клиентов</span></div>
             <div class="row justify-content-center">
                 <div
                     v-for="(block, idx) in (data.home_content?.client_blocks || []).slice(0, 4)"

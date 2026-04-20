@@ -15,6 +15,7 @@ function buildClientValidationErrors(payload) {
     const phone = trimStr(payload?.phone);
     const email = trimStr(payload?.email);
     const message = trimStr(payload?.message);
+    const consent = payload?.consent === true;
 
     if (!name) {
         errors.name = ['Укажите имя.'];
@@ -29,6 +30,9 @@ function buildClientValidationErrors(payload) {
     }
     if (!message) {
         errors.message = ['Введите сообщение.'];
+    }
+    if (!consent) {
+        errors.consent = ['Подтвердите согласие на обработку данных.'];
     }
 
     return errors;
@@ -104,6 +108,7 @@ export const useFeedbackStore = defineStore('feedback', {
                         phone: trimStr(payload.phone),
                         email: trimStr(payload.email),
                         message: trimStr(payload.message),
+                        consent: payload.consent === true,
                     }),
                 });
                 atToast('Заявка отправлена. Мы свяжемся с вами.', 'success');

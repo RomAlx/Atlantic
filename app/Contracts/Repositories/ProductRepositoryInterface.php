@@ -33,4 +33,14 @@ interface ProductRepositoryInterface
      * @return Collection<int, Product>
      */
     public function searchActive(?string $query): Collection;
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function getActivePopular(int $limit, ?int $exceptProductId = null): Collection;
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function getActiveRelatedByCategory(int $categoryId, int $limit, ?int $exceptProductId = null): Collection;
 }

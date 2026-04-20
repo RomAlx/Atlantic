@@ -18,6 +18,7 @@ class StoreFeedbackRequest extends FormRequest
             'phone' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
+            'consent' => ['accepted'],
             'source_page' => ['nullable', 'string', 'max:255'],
         ];
     }
@@ -29,6 +30,7 @@ class StoreFeedbackRequest extends FormRequest
             'phone' => 'телефон',
             'email' => 'email',
             'message' => 'сообщение',
+            'consent' => 'согласие',
             'source_page' => 'страница',
         ];
     }
@@ -48,6 +50,7 @@ class StoreFeedbackRequest extends FormRequest
             'message.required' => 'Введите сообщение.',
             'message.string' => 'Сообщение указано некорректно.',
             'message.max' => 'Сообщение не должно быть длиннее :max символов.',
+            'consent.accepted' => 'Подтвердите согласие на обработку данных.',
             'source_page.string' => 'Страница указана некорректно.',
             'source_page.max' => 'Страница не должна быть длиннее :max символов.',
         ];

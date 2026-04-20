@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router';
 import { fetchJson } from '../services/api';
 import { resolveMediaUrl } from '../utils/media';
 import ProductCardSlider from '../components/ProductCardSlider.vue';
+import SiteBreadcrumbs from '../components/SiteBreadcrumbs.vue';
 
 const PER_PAGE = 12;
 
@@ -188,13 +189,16 @@ onUnmounted(() => {
 
 <template>
     <section>
-        <nav v-if="breadcrumbs.length > 1" class="at_cat_breadcrumbs small text-secondary mb-2" aria-label="Навигация по каталогу">
-            <template v-for="(b, i) in breadcrumbs" :key="b.id">
-                <RouterLink v-if="i < breadcrumbs.length - 1" :to="`/catalog/${b.slug}`" class="text-decoration-none">{{ b.name }}</RouterLink>
-                <span v-else>{{ b.name }}</span>
-                <span v-if="i < breadcrumbs.length - 1" class="px-1">/</span>
-            </template>
-        </nav>
+        <SiteBreadcrumbs
+            :items="[
+                { label: 'Главная', to: '/' },
+                { label: 'Каталог', to: '/catalog' },
+                ...breadcrumbs.map((b, i) => ({
+                    label: b.name,
+                    to: i < breadcrumbs.length - 1 ? `/catalog/${b.slug}` : null,
+                })),
+            ]"
+        />
         <h1 class="h1"><span class="underline_bottom">{{ category?.name ?? 'Категория' }}</span></h1>
         <p v-if="loading" class="text-center">Загрузка...</p>
         <p v-else-if="error" class="text-center">{{ error }}</p>
@@ -238,7 +242,7 @@ onUnmounted(() => {
                     <div
                         v-for="sub in subcategoriesItems"
                         :key="'sub-' + sub.id"
-                        class="col-xxl-3 col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3"
+                        class="col-6 col-md-6 col-xl-3 mb-3"
                     >
                         <RouterLink class="av_not_link" :to="`/catalog/${sub.slug}`">
                             <div class="at_card_cat">
@@ -269,7 +273,7 @@ onUnmounted(() => {
                     <div
                         v-for="item in productsItems"
                         :key="'p-' + item.id"
-                        class="col-xxl-4 col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-3"
+                        class="col-6 col-md-6 col-xl-4 mb-3"
                     >
                         <div class="at_card_product_list">
                             <div class="at_card_product_list__media">

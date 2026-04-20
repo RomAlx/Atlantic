@@ -13,6 +13,9 @@ class Setting extends Model
         'company_name',
         'phone',
         'email',
+        'feedback_email',
+        'yandex_metrika_counter_id',
+        'yandex_maps_api_key',
         'address',
         'warehouse_address',
         'socials',
@@ -21,8 +24,6 @@ class Setting extends Model
         'home_about_paragraph_1',
         'home_about_paragraph_2',
         'home_client_blocks',
-        'yandex_metrika_enabled',
-        'yandex_metrika_counter_id',
         'seo_robots_txt_path',
         'seo_sitemap_xml_path',
     ];
@@ -32,7 +33,6 @@ class Setting extends Model
         'phones' => 'array',
         'social_links' => 'array',
         'home_client_blocks' => 'array',
-        'yandex_metrika_enabled' => 'boolean',
     ];
 
     protected static function booted(): void

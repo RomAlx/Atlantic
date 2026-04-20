@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchJson } from '../services/api';
 import ProductCardSlider from '../components/ProductCardSlider.vue';
+import SiteBreadcrumbs from '../components/SiteBreadcrumbs.vue';
 
 const route = useRoute();
 const loading = ref(true);
@@ -30,11 +31,12 @@ watch(() => route.query.q, load);
 
 <template>
     <section>
+        <SiteBreadcrumbs :items="[{ label: 'Главная', to: '/' }, { label: 'Поиск' }]" />
         <h1 class="h1"><span class="underline_bottom">Поиск</span></h1>
         <p v-if="loading" class="text-center">Загрузка...</p>
         <p v-else-if="error" class="text-center">{{ error }}</p>
         <div v-else class="row justify-content-center">
-            <div v-for="item in data.items" :key="item.id" class="col-xxl-3 col-xl-3 col-md-6 col-sm-6">
+            <div v-for="item in data.items" :key="item.id" class="col-6 col-md-6 col-xl-3">
                 <div class="at_pop_tov">
                     <RouterLink :to="`/catalog/${item.category.slug}/${item.slug}`" class="text-decoration-none text-reset d-block">
                         <div class="at_pop_tov__media">

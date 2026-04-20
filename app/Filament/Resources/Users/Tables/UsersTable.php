@@ -19,10 +19,6 @@ class UsersTable
     {
         return match ($name) {
             'admin' => 'Администратор',
-            'site_manager' => 'Менеджер сайта',
-            'feedback_manager' => 'Менеджер заявок',
-            'content_manager' => 'Контент-менеджер',
-            'seo_specialist' => 'SEO-специалист',
             default => (string) ($name ?? ''),
         };
     }
@@ -68,6 +64,7 @@ class UsersTable
                 SelectFilter::make('role')
                     ->label('Роль')
                     ->options(fn (): array => Role::query()
+                        ->where('name', 'admin')
                         ->orderBy('name')
                         ->pluck('name', 'name')
                         ->mapWithKeys(fn (string $name): array => [$name => self::roleLabel($name)])

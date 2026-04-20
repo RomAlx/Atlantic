@@ -9,7 +9,7 @@ const props = defineProps({
     },
 });
 
-const form = ref({ name: '', phone: '', email: '', message: '' });
+const form = ref({ name: '', phone: '', email: '', message: '', consent: false });
 const feedbackStore = useFeedbackStore();
 
 watch(
@@ -20,7 +20,7 @@ watch(
 );
 
 watch(
-    () => [form.value.name, form.value.phone, form.value.email, form.value.message],
+    () => [form.value.name, form.value.phone, form.value.email, form.value.message, form.value.consent],
     () => {
         if (feedbackStore.errorBanner || feedbackStore.validationErrors) {
             feedbackStore.clearFormErrors();
@@ -35,7 +35,7 @@ const submit = async () => {
     });
 
     if (ok) {
-        form.value = { name: '', phone: '', email: '', message: '' };
+        form.value = { name: '', phone: '', email: '', message: '', consent: false };
     }
 };
 </script>
@@ -63,6 +63,14 @@ const submit = async () => {
                             <div class="mb-3"><input v-model="form.phone" class="form-control" placeholder="Ваш телефон"></div>
                             <div class="mb-3"><input v-model="form.email" type="email" class="form-control" placeholder="Ваш email"></div>
                             <div class="mb-3"><textarea v-model="form.message" class="form-control" rows="4" placeholder="Сообщение"></textarea></div>
+                            <div class="mb-3 at_feedback_consent">
+                                <label class="at_feedback_consent__label">
+                                    <input v-model="form.consent" type="checkbox" class="at_feedback_consent__checkbox">
+                                    <RouterLink class="at_feedback_consent__link" to="/privacy-consent">
+                                        Согласие на обработку данных
+                                    </RouterLink>
+                                </label>
+                            </div>
                             <button :disabled="feedbackStore.submitting" type="button" class="at_but_style" @click="submit">
                                 {{ feedbackStore.submitting ? 'Отправка...' : 'Отправить' }}
                             </button>

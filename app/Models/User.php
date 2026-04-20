@@ -10,7 +10,6 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
@@ -38,7 +37,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasAnyRole(['admin', 'site_manager', 'feedback_manager', 'content_manager', 'seo_specialist']);
+        return $this->hasRole('admin');
     }
 
     public function getFilamentAvatarUrl(): ?string
@@ -50,8 +49,4 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return Storage::disk('public')->url($this->avatar_path);
     }
 
-    public function assignedFeedbackRequests(): HasMany
-    {
-        return $this->hasMany(FeedbackRequest::class, 'manager_id');
-    }
 }

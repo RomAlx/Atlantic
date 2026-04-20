@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import YandexMetrikaCounter from './components/YandexMetrikaCounter.vue';
 import SiteLayout from './layouts/SiteLayout.vue';
 import { useSettingsStore } from './stores/settingsStore';
 
@@ -17,6 +18,7 @@ onMounted(() => {
 
 <template>
     <main>
+        <YandexMetrikaCounter />
         <SiteLayout :query="query" :settings="settingsStore.item" :source-path="sourcePath">
             <section id="at_content">
                 <div class="container">
