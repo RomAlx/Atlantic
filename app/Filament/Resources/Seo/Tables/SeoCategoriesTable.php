@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Seo\Tables;
 
+use App\Models\Category;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -28,6 +29,22 @@ class SeoCategoriesTable
                     ->label('Slug')
                     ->searchable()
                     ->toggleable(),
+                TextColumn::make('related_category_ids')
+                    ->label('Связанные')
+                    ->toggleable()
+                    ->getStateUsing(function (Category $record): string {
+                        $ids = $record->related_category_ids;
+                        if (! is_array($ids) || $ids === []) {
+                            return '—';
+                        }
+
+                        $names = Category::query()->whereIn('id', $ids)->pluck('name', 'id');
+
+                        return collect($ids)
+                            ->map(fn ($id) => $names->get((int) $id))
+                            ->filter()
+                            ->implode(', ') ?: '—';
+                    }),
                 TextColumn::make('parent.name')
                     ->label('Родитель')
                     ->sortable()

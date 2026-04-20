@@ -222,11 +222,11 @@ readonly class SiteService
                     'sort_order' => $img->sort_order,
                     'is_main' => $img->is_main,
                 ])->values()->all(),
-                'popular_items' => $this->products->getActivePopular(6, $product->id)
+                'popular_items' => $this->products->getActivePopularInCategory((int) $product->category_id, 6, $product->id)
                     ->map(fn (Product $row) => $this->productSummaryPayload($row))
                     ->values()
                     ->all(),
-                'related_items' => $this->products->getActiveRelatedByCategory((int) $product->category_id, 6, $product->id)
+                'related_items' => $this->products->getActiveRelatedByLinkedCategories($product->category, 6, $product->id)
                     ->map(fn (Product $row) => $this->productSummaryPayload($row))
                     ->values()
                     ->all(),
@@ -347,8 +347,7 @@ readonly class SiteService
             'item' => [
                 'company_name' => $setting->company_name,
                 'email' => $setting->email,
-                'address' => $setting->address,
-                'warehouse_address' => $setting->warehouse_address,
+                'contact_addresses' => array_values($setting->contact_addresses ?? []),
                 'main_phone' => $setting->mainPhoneNumber(),
                 'phone' => $setting->mainPhoneNumber(),
                 'phones' => $setting->phones ?? [],
@@ -401,6 +400,7 @@ readonly class SiteService
     {
         $routeName = (string) ($data['route_name'] ?? '');
         $productSlug = filled($data['product_slug'] ?? null) ? (string) $data['product_slug'] : null;
+        $categorySlug = filled($data['category_slug'] ?? null) ? (string) $data['category_slug'] : null;
         $supportArticleSlug = filled($data['support_article_slug'] ?? null) ? (string) $data['support_article_slug'] : null;
 
         $section = match ($routeName) {
@@ -423,6 +423,13 @@ readonly class SiteService
             'support_article_slug' => $supportArticleSlug,
             'visited_at' => now(),
         ]);
+
+        if ($routeName === 'product' && $categorySlug !== null && $productSlug !== null) {
+            Product::query()
+                ->where('slug', $productSlug)
+                ->whereHas('category', fn ($q) => $q->where('slug', $categorySlug))
+                ->increment('view_count');
+        }
     }
 
     /**

@@ -82,6 +82,18 @@ class ProductForm
                     ->default(0)
                     ->required()
                     ->label('Порядок сортировки'),
+                TextInput::make('view_count')
+                    ->numeric()
+                    ->default(0)
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->visibleOn('edit')
+                    ->label('Просмотры')
+                    ->helperText('Счётчик обновляется при посещениях карточки товара на сайте.'),
+                Toggle::make('boost_popular')
+                    ->default(false)
+                    ->label('Продвигать в «популярных»')
+                    ->helperText('Добавляет вес к рейтингу популярности вместе с числом просмотров.'),
                 Toggle::make('is_active')
                     ->default(true)
                     ->required()

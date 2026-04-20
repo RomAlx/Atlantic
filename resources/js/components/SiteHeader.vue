@@ -54,7 +54,7 @@ defineProps({
                             </div>
                             <div class="col-xxl-3 col-md-4 col-sm-6 col-12 align-self-center">
                                 <div class="at_but at_but_head">
-                                    <a class="at_but_style" href="#feedback-form">Задать вопрос</a>
+                                    <RouterLink class="at_but_style" to="/ask">Задать вопрос</RouterLink>
                                 </div>
                             </div>
                         </div>

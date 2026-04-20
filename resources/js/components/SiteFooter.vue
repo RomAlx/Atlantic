@@ -31,6 +31,26 @@ const phoneRows = computed(() => {
     return [];
 });
 
+function parseContactAddresses(raw) {
+    if (raw == null) {
+        return [];
+    }
+    let list = raw;
+    if (typeof list === 'string') {
+        try {
+            list = JSON.parse(list);
+        } catch {
+            return [];
+        }
+    }
+    if (!Array.isArray(list)) {
+        return [];
+    }
+    return list.filter((row) => row && typeof row.address === 'string' && row.address.trim().length > 0);
+}
+
+const addressLocations = computed(() => parseContactAddresses(props.settings?.contact_addresses));
+
 const socialLinks = computed(() => {
     const list = props.settings?.social_links;
     if (Array.isArray(list) && list.length > 0) {
@@ -55,15 +75,33 @@ const companyName = computed(() => props.settings?.company_name || 'Atlantic Gro
             <div class="row justify-content-center align-items-start gy-4 at_footer_main">
                 <div class="col-lg-4 col-md-6 order-2 order-lg-1 text-center text-lg-start">
                     <div class="at_foot_p">
-                        <p v-if="settings?.address">{{ settings.address }}</p>
-                        <p v-if="settings?.warehouse_address" class="small text-secondary mb-2">
-                            Склад: {{ settings.warehouse_address }}
-                        </p>
                         <template v-for="(row, idx) in phoneRows" :key="'ph-' + idx">
-                            <p class="mb-1">
-                                <span v-if="row.label" class="small text-secondary d-block">{{ row.label }}</span>
-                                <a :href="telHref(row.number) ? `tel:${telHref(row.number)}` : '#'">{{ row.number }}</a>
+                            <p class="mb-2 small fw-bold">
+                                <template v-if="(row.label || '').trim()">
+                                    {{ (row.label || '').trim() }} — <a :href="telHref(row.number) ? `tel:${telHref(row.number)}` : '#'">{{ row.number }}</a>
+                                </template>
+                                <template v-else>
+                                    <a :href="telHref(row.number) ? `tel:${telHref(row.number)}` : '#'">{{ row.number }}</a>
+                                </template>
                             </p>
+                        </template>
+                        <template v-for="(loc, idx) in addressLocations" :key="'addr-' + idx">
+                            <p v-if="(loc.title || '').trim()" class="small mb-1 fw-bold">{{ (loc.title || '').trim() }}</p>
+                            <p class="small mb-1">{{ loc.address }}</p>
+                            <template v-if="Array.isArray(loc.phones) && loc.phones.length">
+                                <p
+                                    v-for="(lp, j) in loc.phones.filter((p) => p && p.number)"
+                                    :key="'lp-' + idx + '-' + j"
+                                    class="small"
+                                >
+                                    <template v-if="(lp.label || '').trim()">
+                                        {{ (lp.label || '').trim() }} — <a :href="telHref(lp.number) ? `tel:${telHref(lp.number)}` : '#'">{{ lp.number }}</a>
+                                    </template>
+                                    <template v-else>
+                                        <a :href="telHref(lp.number) ? `tel:${telHref(lp.number)}` : '#'">{{ lp.number }}</a>
+                                    </template>
+                                </p>
+                            </template>
                         </template>
                         <p v-if="settings?.email">
                             <a :href="`mailto:${settings.email}`">{{ settings.email }}</a>

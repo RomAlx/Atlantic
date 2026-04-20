@@ -7,6 +7,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    heading: {
+        type: String,
+        default: 'Форма обратной связи',
+    },
 });
 
 const form = ref({ name: '', phone: '', email: '', message: '', consent: false });
@@ -45,7 +49,7 @@ const submit = async () => {
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-xxl-12">
-                    <div class="h1"><p><span class="underline_bottom">Форма обратной связи</span></p></div>
+                    <div class="h1"><span class="underline_bottom">{{ heading }}</span></div>
                 </div>
                 <div class="col-xxl-6 col-xl-7 col-lg-8 col-md-10 col-sm-12">
                     <div class="at_feedback_form_wrap mx-auto">

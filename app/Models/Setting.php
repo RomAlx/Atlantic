@@ -16,8 +16,7 @@ class Setting extends Model
         'feedback_email',
         'yandex_metrika_counter_id',
         'yandex_maps_api_key',
-        'address',
-        'warehouse_address',
+        'contact_addresses',
         'socials',
         'phones',
         'social_links',
@@ -31,6 +30,7 @@ class Setting extends Model
     protected $casts = [
         'socials' => 'array',
         'phones' => 'array',
+        'contact_addresses' => 'array',
         'social_links' => 'array',
         'home_client_blocks' => 'array',
     ];
@@ -39,6 +39,7 @@ class Setting extends Model
     {
         static::saving(function (Setting $setting): void {
             $setting->home_client_blocks = static::normalizeHomeClientBlocks($setting->home_client_blocks);
+            $setting->contact_addresses = static::normalizeContactAddresses($setting->contact_addresses);
             $setting->phones = static::normalizePhones($setting->phones);
             $setting->social_links = static::normalizeSocialLinks($setting->social_links);
             $main = collect($setting->phones)->firstWhere('is_main', true);
@@ -51,6 +52,56 @@ class Setting extends Model
     }
 
     /**
+     * Площадки с адресом и телефонами только этой площадки (без «основного» адреса).
+     *
+     * @return list<array{title: string, address: string, phones: list<array{label: string, number: string}>}>
+     */
+    public static function normalizeContactAddresses(mixed $rows): array
+    {
+        if (! is_array($rows)) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+            $title = trim((string) ($row['title'] ?? '')) ?: 'Площадка';
+            $address = trim((string) ($row['address'] ?? ''));
+            $phonesRaw = $row['phones'] ?? [];
+            $phones = [];
+            if (is_array($phonesRaw)) {
+                foreach ($phonesRaw as $p) {
+                    if (! is_array($p)) {
+                        continue;
+                    }
+                    $number = trim((string) ($p['number'] ?? ''));
+                    if ($number === '') {
+                        continue;
+                    }
+                    $phones[] = [
+                        'label' => trim((string) ($p['label'] ?? '')) ?: 'Телефон',
+                        'number' => $number,
+                    ];
+                }
+            }
+            if ($address === '') {
+                continue;
+            }
+            $out[] = [
+                'title' => $title,
+                'address' => $address,
+                'phones' => $phones,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Телефоны без привязки к адресу; ровно один может быть основным (шапка сайта).
+     *
      * @return list<array{label: string, number: string, is_main: bool}>
      */
     public static function normalizePhones(mixed $phones): array
@@ -94,10 +145,6 @@ class Setting extends Model
         return $out;
     }
 
-    /**
-     * @param  mixed  $links
-     * @return list<array{network: string, url: string}>
-     */
     /**
      * @return list<array{title: string, text: string}>
      */

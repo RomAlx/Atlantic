@@ -2,6 +2,7 @@
 
 namespace App\Contracts\Repositories;
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -35,12 +36,16 @@ interface ProductRepositoryInterface
     public function searchActive(?string $query): Collection;
 
     /**
+     * Самые «популярные» товары внутри одной категории: score = view_count + (boost_popular ? вес : 0).
+     *
      * @return Collection<int, Product>
      */
-    public function getActivePopular(int $limit, ?int $exceptProductId = null): Collection;
+    public function getActivePopularInCategory(int $categoryId, int $limit, ?int $exceptProductId = null): Collection;
 
     /**
+     * Товары из связанных категорий (поле у категории), сортировка по тому же score популярности.
+     *
      * @return Collection<int, Product>
      */
-    public function getActiveRelatedByCategory(int $categoryId, int $limit, ?int $exceptProductId = null): Collection;
+    public function getActiveRelatedByLinkedCategories(Category $category, int $limit, ?int $exceptProductId = null): Collection;
 }

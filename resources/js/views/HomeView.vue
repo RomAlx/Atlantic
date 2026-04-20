@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { fetchJson } from '../services/api';
 import HomeBannersCarousel from '../components/HomeBannersCarousel.vue';
 import { resolveMediaUrl } from '../utils/media';
@@ -7,6 +7,20 @@ import { resolveMediaUrl } from '../utils/media';
 const loading = ref(true);
 const error = ref('');
 const data = ref({ categories: [], products: [], banners: [], home_content: null });
+
+/** На узком экране показываем 2 категории вместо 3 */
+const isNarrowHome = ref(false);
+let homeMq;
+
+const syncHomeWidth = () => {
+    isNarrowHome.value = typeof window !== 'undefined' && window.matchMedia('(max-width: 767.98px)').matches;
+};
+
+const homeCatalogCategories = computed(() => {
+    const list = data.value.categories ?? [];
+    const max = isNarrowHome.value ? 2 : 3;
+    return list.slice(0, max);
+});
 
 const load = async () => {
     loading.value = true;
@@ -22,7 +36,16 @@ const load = async () => {
     }
 };
 
-onMounted(load);
+onMounted(() => {
+    syncHomeWidth();
+    homeMq = window.matchMedia('(max-width: 767.98px)');
+    homeMq.addEventListener('change', syncHomeWidth);
+    load();
+});
+
+onUnmounted(() => {
+    homeMq?.removeEventListener('change', syncHomeWidth);
+});
 </script>
 
 <template>
@@ -30,19 +53,23 @@ onMounted(load);
         <HomeBannersCarousel :items="data.banners || []" />
         <div class="container py-5" v-if="!loading && !error">
             <div class="h1"><span class="underline_bottom">Каталог продукции</span></div>
-            <div class="row justify-content-center">
-                <div v-for="item in data.categories.slice(0,3)" :key="item.id" class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <RouterLink class="av_not_link" :to="`/catalog/${item.slug}`">
-                        <div class="at_card_cat">
+            <div class="row g-3 justify-content-center at_card_grid_row">
+                <div v-for="item in homeCatalogCategories" :key="item.id" class="col-6 col-lg-4">
+                    <article class="at_support_card h-100">
+                        <RouterLink :to="`/catalog/${item.slug}`" class="text-reset text-decoration-none d-flex flex-column h-100">
                             <img
-                                class="img-fluid at_preview_fill"
+                                class="at_support_card__image"
                                 :src="resolveMediaUrl(item.image, '/images/original/at_img_cat_home.png')"
                                 :alt="item.name"
                             >
-                            <div class="at_naim_tov">{{ item.name }}</div>
-                            <div class="at_but av_otst_tb"><span class="at_but_style">Подробнее</span></div>
-                        </div>
-                    </RouterLink>
+                            <div class="at_support_card__body">
+                                <h2 class="at_support_card__title">{{ item.name }}</h2>
+                                <div class="at_but av_otst_tb">
+                                    <span class="at_but_style">Подробнее</span>
+                                </div>
+                            </div>
+                        </RouterLink>
+                    </article>
                 </div>
             </div>
 

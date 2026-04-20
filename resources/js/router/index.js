@@ -7,6 +7,7 @@ import ContactsView from '../views/ContactsView.vue';
 import HomeView from '../views/HomeView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 import PrivacyConsentView from '../views/PrivacyConsentView.vue';
+import AskQuestionView from '../views/AskQuestionView.vue';
 import SearchView from '../views/SearchView.vue';
 import SupportArticleView from '../views/SupportArticleView.vue';
 import SupportView from '../views/SupportView.vue';
@@ -19,13 +20,23 @@ const router = createRouter({
         { path: '/catalog/:categorySlug', name: 'category', component: CatalogCategoryView },
         { path: '/catalog/:categorySlug/:productSlug', name: 'product', component: CatalogProductView },
         { path: '/contacts', name: 'contacts', component: ContactsView },
+        { path: '/ask', name: 'ask-question', component: AskQuestionView },
         { path: '/search', name: 'search', component: SearchView },
         { path: '/privacy-consent', name: 'privacy-consent', component: PrivacyConsentView },
         { path: '/support', name: 'support', component: SupportView },
         { path: '/support/:slug', name: 'support-article', component: SupportArticleView },
         { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView },
     ],
-    scrollBehavior() {
+    scrollBehavior(to, from, savedPosition) {
+        if (to.hash) {
+            return {
+                el: to.hash,
+                behavior: 'smooth',
+            };
+        }
+        if (savedPosition) {
+            return savedPosition;
+        }
         return { top: 0 };
     },
 });

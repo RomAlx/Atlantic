@@ -12,6 +12,8 @@ router.afterEach((to) => {
         path: to.fullPath,
         route_name: String(to.name ?? ''),
         product_slug: typeof to.params?.productSlug === 'string' ? to.params.productSlug : '',
+        category_slug:
+            typeof to.params?.categorySlug === 'string' && to.name === 'product' ? to.params.categorySlug : '',
         support_article_slug: typeof to.params?.slug === 'string' && to.name === 'support-article' ? to.params.slug : '',
     };
 
